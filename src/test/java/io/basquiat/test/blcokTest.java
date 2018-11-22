@@ -10,7 +10,9 @@ import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.basquiat.blockchain.block.difficulty.BlockDifficulty;
 import io.basquiat.blockchain.block.domain.Block;
+import io.basquiat.blockchain.block.domain.BlockStore;
 import io.basquiat.blockchain.block.util.BlockUtil;
 import io.basquiat.util.CommonUtil;
 import io.basquiat.util.FileIOUtil;
@@ -25,13 +27,31 @@ public class blcokTest {
 	
 	@Test
 	public void test() {
-
-		Integer a = 1;
-		Integer b = 2;
-		System.out.println(!(a == b));
-
-	}
+//		Map<Integer, String> blockMap = new ConcurrentHashMap<>();
+//		blockMap.put(0, "block0");
+//		blockMap.put(4, "block4");
+//		blockMap.put(5, "block5");
+//		blockMap.put(1, "block1");
+//		blockMap.put(3, "block3");
+//		blockMap.put(2, "block2");
+//		
+//		Collection<String> collection = blockMap.values();
+//		
+//		List<String> list = new ArrayList<>(collection);
+//		System.out.println(list.get(list.size()-1));
 		
+		BlockUtil.initializeBlockStore();
+		System.out.println(BlockStore.getBlockList());
+	}
+	
+	//@Test
+	public void hexToBinarytest() {
+		String hash = "0xb2f8e468d9e51c8b52658dfd19b696759a0597280dfcd1f972b549d4ade9ed6a";
+	    System.out.println(BlockDifficulty.hexToBinary(hash));
+	    String hexToBinary = BlockDifficulty.hexToBinary(hash);
+	    System.out.println(hexToBinary.startsWith(""));
+	}
+	
 	//@Test
 	public void createBlockTest() {
 

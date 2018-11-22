@@ -3,6 +3,7 @@ package io.basquiat.blockchain.block;
 import org.springframework.stereotype.Service;
 
 import io.basquiat.blockchain.block.domain.Block;
+import io.basquiat.blockchain.block.domain.BlockStore;
 import io.basquiat.blockchain.block.util.BlockUtil;
 import io.basquiat.util.CommonUtil;
 import io.basquiat.util.FileIOUtil;
@@ -23,9 +24,8 @@ public class BlockService {
 	 */
 	public Mono<Block> findBlockByIndex(String blockIndex) {
 		Mono<Block> mono = null;
-		
 		if(CommonUtil.validNumber(blockIndex)) {
-			mono = Mono.just(BlockUtil.blockByIndexFromFileRepository(Integer.parseInt(blockIndex)));
+			mono = Mono.just(BlockUtil.blockByIndexFromBlockStore(Integer.parseInt(blockIndex)));
 		}
 		return  mono;  
 	}
@@ -35,7 +35,7 @@ public class BlockService {
 	 * @return Mono<Block>
 	 */
 	public Mono<Block> findLatestBlock() {
-		return  Mono.just(BlockUtil.latestBlockFromFileRepository());
+		return  Mono.just(BlockUtil.latestBlockFromBlockStore());
 	}
 	
 	/**
@@ -54,8 +54,9 @@ public class BlockService {
 		/*
 		 * previous block을 가져와서 새로운 블록을 생성하고 file로 저장한다. 
 		 */
-		Block previousBlock = BlockUtil.latestBlockFromFileRepository();
+		Block previousBlock = BlockUtil.latestBlockFromBlockStore();
 		Block newBlock = BlockUtil.createNextBlock(previousBlock, data);
+		BlockStore.addBlockStore(newBlock);
 		FileIOUtil.writeJsonFile(newBlock);
 		return newBlock;
 	}

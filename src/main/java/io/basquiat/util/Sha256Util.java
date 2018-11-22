@@ -17,7 +17,7 @@ public class Sha256Util {
 
 	/**
 	 * encryt sha256
-	 * @param targetInfo
+	 * @param target
 	 * @return String
 	 */
 	public static String SHA256(String target) {

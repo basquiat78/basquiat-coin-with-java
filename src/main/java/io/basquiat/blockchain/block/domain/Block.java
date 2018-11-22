@@ -37,6 +37,16 @@ public class Block {
 	private String data;
 	
 	/**
+	 * difficulty
+	 */
+	private Integer difficulty;
+	
+	/**
+	 * nonce
+	 */
+	private Integer nonce;
+	
+	/**
 	 * time stamp
 	 */
 	private long timestamp;

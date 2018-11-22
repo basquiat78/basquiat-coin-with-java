@@ -1,5 +1,6 @@
 package io.basquiat.util;
 
+import java.util.Collections;
 import java.util.Date;
 
 import org.springframework.stereotype.Component;
@@ -53,7 +54,7 @@ public class CommonUtil {
 	/**
 	 * valid String to Number
 	 * @param value
-	 * @return
+	 * @return boolean
 	 */
 	public static boolean validNumber(String value) {
 		boolean isValid = true;
@@ -63,6 +64,16 @@ public class CommonUtil {
 			isValid = false;
 		}
 		return isValid;
+	}
+	
+	/**
+	 * create repeat String
+	 * @param value
+	 * @param repeatIndex
+	 * @return static
+	 */
+	public static String repeat(String value, Integer repeatIndex) {
+		return String.join("", Collections.nCopies(repeatIndex, value));
 	}
 	
 }

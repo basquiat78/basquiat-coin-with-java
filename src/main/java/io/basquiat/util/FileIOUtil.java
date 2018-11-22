@@ -74,7 +74,7 @@ public class FileIOUtil {
 	 * read json file and convert to object
 	 * @param fileIndex
 	 * @param clazz
-	 * @return
+	 * @return T
 	 */
 	public static <T> T readJsonFile(Integer fileIndex, Class<T> clazz) {
 
@@ -97,13 +97,40 @@ public class FileIOUtil {
 	}
 
 	/**
+	 * read json file and convert to object
+	 * @param fileIndex
+	 * @param clazz
+	 * @return T
+	 */
+	public static <T> T readFile(File file, Class<T> clazz) {
+		ObjectMapper mapper = new ObjectMapper();
+		T object = null;
+		try {
+			object = (T) mapper.readValue(file, clazz);
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }
+		return object;  
+		
+	}
+	
+	/**
 	 * file list size from file repository
 	 * @return Integer
 	 */
 	public static Integer fileLength() {
+		File[] files = FileIOUtil.fileList();
+		return files.length;
+	}
+
+	/**
+	 * get file array
+	 * @return File[]
+	 */
+	public static File[] fileList() {
 		File file = new File(BLOCK_FILE_PATH);
 		File[] files = file.listFiles();
-		return files.length;
+		return files;
 	}
 	
 }

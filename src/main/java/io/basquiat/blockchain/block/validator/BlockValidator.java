@@ -1,5 +1,7 @@
 package io.basquiat.blockchain.block.validator;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,13 +47,38 @@ public class BlockValidator {
 			return false;
 		}
 		// 3. 새로운 블록의 hash값을 다시 체크한다.
-		String regenerateNewBlockHash = BlockUtil.createHash(newBlock.getIndex(), newBlock.getPreviousHash(), newBlock.getTimestamp(), newBlock.getData());
+		String regenerateNewBlockHash = BlockUtil.createHash(newBlock.getIndex(), 
+															 newBlock.getPreviousHash(), 
+															 newBlock.getTimestamp(), 
+															 newBlock.getData(),
+															 newBlock.getDifficulty(),
+															 newBlock.getNonce());
 		if( !regenerateNewBlockHash.equals(newBlock.getHash()) ) {
 			LOG.info("invalid New Block Hash");
 			return false;
 		}
 		// 위의 모든 조건이 만족한다면 true 반환
 		return isValid;
+	}
+	
+	/**
+	 * <pre>
+	 * timestamp를 통해서 정상적인 난이도를 거쳤는지 체크한다.
+	 * Role Of Timestamp
+	 * 밑이 @see의 링크에 관련 정보가 있다.
+	 * timestamp가 difficulty에 어떻게 사용되는지 해당 질문에 대한 답변이 있다.
+	 * <pre>
+	 * @See bitcoin timestamp valid -> https://bitcoin.stackexchange.com/questions/68653/the-role-of-timestamp
+	 * @param newBlock
+	 * @param previousBlock
+	 * @return boolean
+	 */
+	public static boolean validatTimestamp(Block newBlock, Block previousBlock) {
+		// 이전 블록의 timestamp에서 60 (unixTime 1분)을 뺀 값이 새로운 블록의 timestamp보다 작아야 한다. 당연한가???
+		// 근데 1분의 근거는??
+		// 새로운 블록의 timestamp에서 60을 뺀 값은 현재 시간보다 작아야 한다. 당연한건데?
+		// 근데 여기서 1분의 근거는 ??
+		return (previousBlock.getTimestamp() - 60 < newBlock.getTimestamp() && newBlock.getTimestamp() - 60 < new Date().getTime()/1000);
 	}
 	
 	/**
@@ -87,7 +114,9 @@ public class BlockValidator {
 		String regenerateGenesisBlockHash = BlockUtil.createHash(receivedGenesisBlock.getIndex(), 
 																 receivedGenesisBlock.getPreviousHash(), 
 																 receivedGenesisBlock.getTimestamp(), 
-																 receivedGenesisBlock.getData());
+																 receivedGenesisBlock.getData(),
+																 receivedGenesisBlock.getDifficulty(),
+																 receivedGenesisBlock.getNonce());
 		if( !regenerateGenesisBlockHash.equals(genesisBlock.getHash()) ) {
 			LOG.info("invalid Receidved Genesis Block Hash");
 			return false;

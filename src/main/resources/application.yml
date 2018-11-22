@@ -21,10 +21,21 @@ genesis:
   hash:
     value: 'Jean-Michel Basquiat die August 12, 1988'
   timestamp: 1542781414755
+  difficulty: 0
+  nonce: 0
 
+#block file repo setup
+#minig block generation interval and difficulty adjustment 15
+#mining시에 블록 생성 주기는 15초 (like ethereum)
+#minig difficulty 조정은 15블럭마다 조정 
 block:
   file:
     name:
       format: .json
       prefix: BASQUIAT_
     path: C:/Users/basquiat/git/basquiat-coin-with-java/block/
+  generation:
+    interval: 15
+  difficulty:
+    adjustment:
+      interval: 15
