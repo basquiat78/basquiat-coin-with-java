@@ -23,6 +23,15 @@ public class blcokTest {
 	@Autowired
     private WebTestClient webTestClient;
 	
+	@Test
+	public void test() {
+
+		Integer a = 1;
+		Integer b = 2;
+		System.out.println(!(a == b));
+
+	}
+		
 	//@Test
 	public void createBlockTest() {
 
@@ -65,7 +74,7 @@ public class blcokTest {
 		System.out.println(BlockUtil.blockByIndexFromFileRepository(3));
 	}
 	
-	@Test
+	//@Test
 	public void webClientTest() throws JsonProcessingException {
 		ResponseSpec responseSpec = webTestClient.get()
 												 .uri("/blocks/0")
