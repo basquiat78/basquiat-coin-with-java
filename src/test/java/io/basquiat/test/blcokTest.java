@@ -18,7 +18,7 @@ import io.basquiat.util.Sha256Util;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class blcokchainTest {
+public class blcokTest {
 
 	@Autowired
     private WebTestClient webTestClient;
