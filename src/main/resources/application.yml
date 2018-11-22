@@ -1,0 +1,31 @@
+#spring  setup and common configuration
+spring:
+  profiles:
+    active: local
+    
+---
+#spring profiles : LOCAL
+#spring and hikari setup
+spring:
+  profiles: local
+
+#logging
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        web: DEBUG
+
+# timestamp is 2018-11-21 wednesday
+genesis:
+  hash:
+    value: 'Jean-Michel Basquiat die August 12, 1988'
+  timestamp: 1542781414755
+
+block:
+  file:
+    name:
+      format: .json
+      prefix: BASQUIAT_
+    path: C:/Users/basquiat/git/basquiat-coin-with-java/block/
