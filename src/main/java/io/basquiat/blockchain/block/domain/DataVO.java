@@ -1,4 +1,4 @@
-package com.basquiat.blockchain.block.domain;
+package io.basquiat.blockchain.block.domain;
 
 import lombok.Data;
 

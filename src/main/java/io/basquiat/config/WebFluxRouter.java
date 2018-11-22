@@ -1,4 +1,4 @@
-package com.basquiat.config;
+package io.basquiat.config;
 
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -15,7 +15,7 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import com.basquiat.blockchain.block.handler.BlockHandler;
+import io.basquiat.blockchain.block.handler.BlockHandler;
 
 /**
  * RxJava WebFluxRouter Configuration

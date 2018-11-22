@@ -1,4 +1,4 @@
-package com.basquiat.test;
+package io.basquiat.test;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,12 +8,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec;
 
-import com.basquiat.blockchain.block.domain.Block;
-import com.basquiat.blockchain.block.util.BlockUtil;
-import com.basquiat.util.CommonUtil;
-import com.basquiat.util.FileIOUtil;
-import com.basquiat.util.Sha256Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import io.basquiat.blockchain.block.domain.Block;
+import io.basquiat.blockchain.block.util.BlockUtil;
+import io.basquiat.util.CommonUtil;
+import io.basquiat.util.FileIOUtil;
+import io.basquiat.util.Sha256Util;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

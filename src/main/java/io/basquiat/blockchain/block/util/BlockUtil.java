@@ -1,4 +1,4 @@
-package com.basquiat.blockchain.block.util;
+package io.basquiat.blockchain.block.util;
 
 import java.util.Date;
 
@@ -7,10 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.basquiat.blockchain.block.domain.Block;
-import com.basquiat.util.CommonUtil;
-import com.basquiat.util.FileIOUtil;
-import com.basquiat.util.Sha256Util;
+import io.basquiat.blockchain.block.domain.Block;
+import io.basquiat.util.CommonUtil;
+import io.basquiat.util.FileIOUtil;
+import io.basquiat.util.Sha256Util;
 
 /**
  * BlockUtil

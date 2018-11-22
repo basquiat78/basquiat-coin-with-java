@@ -1,8 +1,8 @@
-package com.basquiat.blockchain.block.validator;
+package io.basquiat.blockchain.block.validator;
 
 import org.springframework.stereotype.Component;
 
-import com.basquiat.blockchain.block.domain.Block;
+import io.basquiat.blockchain.block.domain.Block;
 
 /**
  * Block Validator

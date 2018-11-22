@@ -1,4 +1,4 @@
-package com.basquiat.util;
+package io.basquiat.util;
 
 import java.util.Date;
 

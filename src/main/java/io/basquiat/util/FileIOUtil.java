@@ -1,4 +1,4 @@
-package com.basquiat.util;
+package io.basquiat.util;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,9 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.basquiat.blockchain.block.domain.Block;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.basquiat.blockchain.block.domain.Block;
 
 /**
  * 
