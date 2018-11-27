@@ -119,7 +119,7 @@ public class BlockUtil {
 	 * @return Block
 	 */
 	public static Block genesisBlockFromFileRepository() {
-		return FileIOUtil.readJsonFile(0, Block.class);
+		return FileIOUtil.readJsonBlockFile(0);
 	}
 	
 	/**
@@ -138,11 +138,11 @@ public class BlockUtil {
 
 		Block block = null;
 		
-		Integer index = FileIOUtil.fileLength();
+		Integer index = FileIOUtil.blockFileLength();
 		if(index == 0) {
 			LOG.info("File doesn't exists");
 		} else if(index > 0) {
-			block =  FileIOUtil.readJsonFile(index-1, Block.class);
+			block =  FileIOUtil.readJsonBlockFile(index-1);
 		}
 		
 		return block;
@@ -163,7 +163,7 @@ public class BlockUtil {
 	 * @return Block
 	 */
 	public static Block blockByIndexFromFileRepository(Integer index) {
-		return FileIOUtil.readJsonFile(index, Block.class);
+		return FileIOUtil.readJsonBlockFile(index);
 	}
 
 	/**
@@ -179,8 +179,7 @@ public class BlockUtil {
 	 * initialize BlockStore
 	 */
 	public static void initializeBlockStore() {
-		File[] files = FileIOUtil.fileList();
-		System.out.println(FileIOUtil.fileLength());
+		File[] files = FileIOUtil.blockFileList();
 		Stream.of(files).forEach(file -> BlockStore.addBlockStore(FileIOUtil.readFile(file, Block.class)));
 	}
 	

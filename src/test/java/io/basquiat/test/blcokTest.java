@@ -70,15 +70,15 @@ public class blcokTest {
 	public void writeBlockFileTest() throws JsonProcessingException {
 		Block genesisBlock = BlockUtil.genesisBlock();
 		System.out.println(genesisBlock);
-		FileIOUtil.writeJsonFile(genesisBlock);
+		FileIOUtil.writeJsonBlockFile(genesisBlock);
 		
 		Block secondBlock = BlockUtil.createNextBlock(genesisBlock, "second");
 		System.out.println(secondBlock);
-		FileIOUtil.writeJsonFile(secondBlock);
+		FileIOUtil.writeJsonBlockFile(secondBlock);
 		
 		Block thirdBlock = BlockUtil.createNextBlock(secondBlock, "third");
 		System.out.println(thirdBlock);
-		FileIOUtil.writeJsonFile(thirdBlock);
+		FileIOUtil.writeJsonBlockFile(thirdBlock);
 	}
 
 	//@Test

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.domain.BlockStore;
 import io.basquiat.blockchain.block.util.BlockUtil;
+import io.basquiat.blockchain.block.validator.BlockValidator;
 import io.basquiat.util.CommonUtil;
 import io.basquiat.util.FileIOUtil;
 import reactor.core.publisher.Mono;
@@ -27,7 +28,7 @@ public class BlockService {
 		if(CommonUtil.validNumber(blockIndex)) {
 			mono = Mono.just(BlockUtil.blockByIndexFromBlockStore(Integer.parseInt(blockIndex)));
 		}
-		return  mono;  
+		return  mono;
 	}
 	
 	/**
@@ -56,8 +57,12 @@ public class BlockService {
 		 */
 		Block previousBlock = BlockUtil.latestBlockFromBlockStore();
 		Block newBlock = BlockUtil.createNextBlock(previousBlock, data);
-		BlockStore.addBlockStore(newBlock);
-		FileIOUtil.writeJsonFile(newBlock);
+		if(BlockValidator.validatNewBlock(newBlock, previousBlock)) {
+			BlockStore.addBlockStore(newBlock);
+			FileIOUtil.writeJsonBlockFile(newBlock);
+			//TODO
+			// websocket을 통해 새로운 블록을 전파해야한다.
+		}
 		return newBlock;
 	}
 	

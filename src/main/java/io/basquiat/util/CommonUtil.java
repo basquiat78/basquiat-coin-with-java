@@ -76,4 +76,18 @@ public class CommonUtil {
 		return String.join("", Collections.nCopies(repeatIndex, value));
 	}
 	
+	/**
+	 * convert hexString to bytes
+	 * @param hexString
+	 * @return byte[]
+	 */
+	public static byte[] hexStringToByes(String hexString) {
+		int len = hexString.length();
+		byte[] bytes = new byte[len / 2];
+		for(int i = 0; i < len; i += 2) {
+			bytes[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4) + Character.digit(hexString.charAt(i+1), 16));
+		}
+		return bytes;
+	}
+
 }

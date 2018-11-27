@@ -123,9 +123,7 @@ public class BlockDifficulty {
 	 */
 	public static boolean matchesDifficulty(String hash, Integer difficulty) {
 		String hexToBinaryString = BlockDifficulty.hexToBinary(hash);
-		System.out.println("hexToBinaryString-->" + hexToBinaryString);
 		String matchesDifficultyValue = CommonUtil.repeat("0", difficulty);
-		System.out.println("hexToBinaryString-->" + matchesDifficultyValue);
 		return hexToBinaryString.startsWith(matchesDifficultyValue);
 	}
 	
