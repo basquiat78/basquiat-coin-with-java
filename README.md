@@ -20,4 +20,5 @@ sendTransaction을 통해서 코인을 보낼 주소와 수량을 올려놓고 t
 심플하게 메모리상에 올리는 형식.
   
 # Maybe this project will be refactorying....  
-  
+현재는 기능을 구현하기에 급급하느라 REST API의 주소 체계가 살짝 맞지 않으며 static으로 대부분 구현해 놨다.    
+차후에 utility성과 서비스, 핸들러로 패키지를 다시 나누는 작업이 필요하다	
