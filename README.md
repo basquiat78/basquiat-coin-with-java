@@ -7,6 +7,8 @@ Simple Basquiat Coin Blockchain with Java Like Bitcoin
   1.4 PoW (Difficulty and nounce Adjustment)
   1.5 simple Transaction
   1.6 wallet
+  1.7 transaction pool
   
-  Next Step is Transaction Pool
+  Next Step is peer to peer broadcasting Websocket
+  broadcast for sync block data, transaction pool
   
