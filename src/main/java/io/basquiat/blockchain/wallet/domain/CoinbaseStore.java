@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Block Store
+ * Coinbase Store
  * created by basquiat
  *
  */
@@ -16,7 +16,7 @@ public class CoinbaseStore {
 	 * block을 map에 담는다.
 	 * @param block
 	 */
-	public static void setCoinbaseStore(String account) {
+	public static void setCoinbase(String account) {
 		COINBASE_STORE.put("COINBASE", account);
 	}
 	
@@ -24,7 +24,7 @@ public class CoinbaseStore {
 	 * Block Store에서 block를 가져온다.
 	 * @return Block
 	 */
-	public static String getCoinbaseStore() {
+	public static String getCoinbase() {
 		return COINBASE_STORE.get("COINBASE");
 	}
 	

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.domain.BlockStore;
 import io.basquiat.blockchain.block.util.BlockUtil;
+import io.basquiat.blockchain.transaction.domain.Transaction;
 import io.basquiat.util.CommonUtil;
 
 /**
@@ -151,10 +152,10 @@ public class BlockDifficulty {
 	 * @param difficulty
 	 * @return Block
 	 */
-	public static Block findBlock(Integer nextIndex, String previousHash, long timestamp, String data, Integer difficulty) {
+	public static Block findBlock(Integer nextIndex, String previousHash, long timestamp, List<Transaction> tx, Integer difficulty) {
 		Integer nonce = 0;
 		while(true) {
-			String hash = BlockUtil.createHash(nextIndex, previousHash, timestamp, data, difficulty, nonce);
+			String hash = BlockUtil.createHash(nextIndex, previousHash, timestamp, tx.toString(), difficulty, nonce);
 			System.out.println("findBlock hash : " + hash);
 		    if(BlockDifficulty.matchesDifficulty(hash, difficulty)) {
 		        return Block.builder()
@@ -162,7 +163,7 @@ public class BlockDifficulty {
 		        		    .hash(hash)
 		        		    .previousHash(previousHash)
 		        		    .timestamp(timestamp)
-		        		    .data(data)
+		        		    .transactions(tx)
 		        		    .difficulty(difficulty)
 		        		    .nonce(nonce)
 		        		    .build();

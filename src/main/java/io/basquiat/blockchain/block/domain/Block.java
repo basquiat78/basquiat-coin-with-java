@@ -1,5 +1,8 @@
 package io.basquiat.blockchain.block.domain;
 
+import java.util.List;
+
+import io.basquiat.blockchain.transaction.domain.Transaction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,9 +35,9 @@ public class Block {
 	private String previousHash;
 
 	/**
-	 * block data
+	 * block Transaction
 	 */
-	private String data;
+	private List<Transaction> transactions;
 	
 	/**
 	 * difficulty

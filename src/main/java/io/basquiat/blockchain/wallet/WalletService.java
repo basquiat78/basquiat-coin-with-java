@@ -1,5 +1,6 @@
 package io.basquiat.blockchain.wallet;
 
+import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
@@ -11,6 +12,7 @@ import io.basquiat.blockchain.wallet.domain.Address;
 import io.basquiat.blockchain.wallet.domain.CoinbaseStore;
 import io.basquiat.blockchain.wallet.domain.Wallet;
 import io.basquiat.blockchain.wallet.util.WalletUtil;
+import io.basquiat.blockchain.wallet.validator.WalletValidator;
 import io.basquiat.crypto.ECDSAUtil;
 import io.basquiat.util.Base58;
 import io.basquiat.util.FileIOUtil;
@@ -35,7 +37,7 @@ public class WalletService {
 			throw new RuntimeException("Not Found Account!");
 		}
 		// 1. 이전에 있던 file를 삭제한다.
-		FileIOUtil.deleteCoinbaseFile(CoinbaseStore.getCoinbaseStore());
+		FileIOUtil.deleteCoinbaseFile(CoinbaseStore.getCoinbase());
 		// 2. 새로운 account의 파일명의 빈 파일을 생성한다.
 		FileIOUtil.writeCoinbaseFile(account);
 		
@@ -49,7 +51,7 @@ public class WalletService {
 			e.printStackTrace();
 		}
 		// 주소까지 생성되면 새로운 account를 coinbase store에 저장한다.
-		CoinbaseStore.setCoinbaseStore(account);
+		CoinbaseStore.setCoinbase(account);
 		return  Mono.just(Address.builder().account(account).address(address).build());
 	}
 
@@ -65,7 +67,7 @@ public class WalletService {
 			throw new RuntimeException("Not Found Account!");
 		}
 		String address = WalletUtil.getWalletAddress(account);
-		return  Mono.just(Address.builder().account(account).address(address).build());
+		return  Mono.just(Address.builder().account(account).address(address).amount(WalletUtil.getBalanceByAccount(account)).build());
 	}
 
 	/**
@@ -79,6 +81,33 @@ public class WalletService {
 		WalletUtil.writeWalletPrivateKey(account);
 		String address = WalletUtil.getWalletAddress(account);
 		return  Mono.just(Address.builder().account(account).address(address).build());
+	}
+
+	/**
+	 * get balance by address
+	 * @param address
+	 * @return Mono<Address>
+	 */
+	public Mono<Address> getBalanceByAddress(String address) {
+		// address validate
+		if(!WalletValidator.validateAddress(address)) {
+			throw new RuntimeException("invalid Address");
+		}
+		BigDecimal amount = WalletUtil.getBalanceByAddress(address);
+		return Mono.just(Address.builder().address(address).amount(amount).build());
+	}
+
+	/**
+	 * get balance by account
+	 * @param account
+	 * @return Mono<Address>
+	 */
+	public Mono<Address> getBalanceByAccount(String account) {
+		if(!WalletValidator.validateAccount(account)) {
+			throw new RuntimeException("doesn't exist account");
+		}
+		BigDecimal amount = WalletUtil.getBalanceByAccount(account);
+		return Mono.just(Address.builder().account(account).address(WalletUtil.getWalletAddress(account)).amount(amount).build());
 	}
 	
 }

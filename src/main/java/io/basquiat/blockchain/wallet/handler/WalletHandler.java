@@ -41,10 +41,10 @@ public class WalletHandler {
 	 * @return Mono<ServerResponse>
 	 */
 	public Mono<ServerResponse> getCoinbase(ServerRequest request) {
-		if(CoinbaseStore.getCoinbaseStore() == null) {
+		if(CoinbaseStore.getCoinbase() == null) {
 			throw new RuntimeException("not yet coinbase, create coinbase");
 		}
-		Mono<Address> mono = walletService.getWalletAddress(CoinbaseStore.getCoinbaseStore());
+		Mono<Address> mono = walletService.getWalletAddress(CoinbaseStore.getCoinbase());
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(mono, Address.class);
 	}
 	
@@ -69,4 +69,25 @@ public class WalletHandler {
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(mono, Address.class);
 	}
 	
+	/**
+	 * get balance by address
+	 * @param request
+	 * @return Mono<ServerResponse>
+	 */
+	public Mono<ServerResponse> getBalanceByAddress(ServerRequest request) {
+		String address = request.pathVariable("address");
+		Mono<Address> mono = walletService.getBalanceByAddress(address);
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(mono, Address.class);
+	}
+
+	/**
+	 * get balance by account
+	 * @param request
+	 * @return Mono<ServerResponse>
+	 */
+	public Mono<ServerResponse> getBalanceByAccount(ServerRequest request) {
+		String account = request.pathVariable("account");
+		Mono<Address> mono = walletService.getBalanceByAccount(account);
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(mono, Address.class);
+	}
 }

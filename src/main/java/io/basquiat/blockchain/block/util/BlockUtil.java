@@ -2,6 +2,8 @@ package io.basquiat.blockchain.block.util;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 import io.basquiat.blockchain.block.difficulty.BlockDifficulty;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.domain.BlockStore;
+import io.basquiat.blockchain.transaction.domain.Transaction;
+import io.basquiat.blockchain.transaction.util.TransactionUtil;
 import io.basquiat.util.CommonUtil;
 import io.basquiat.util.FileIOUtil;
 import io.basquiat.util.Sha256Util;
@@ -77,13 +81,15 @@ public class BlockUtil {
 		// 2. previousHash is null because genesis block don't have previousHash
 		// 3. hash infomation create from GENESIS_SOURCE
 		// 4. timestamp (unix time)
-		// 5. data is from GENESIS_SOURCE
+		// 5. transactions is genesis transactions
+		List<Transaction> genesisTransactions = Stream.of(TransactionUtil.genesisTransaction()).collect(Collectors.toList());
+		
 		return Block.builder()
 				    .index(0)
 				    .previousHash(null)
 				    .hash(Sha256Util.SHA256(GENESIS_SOURCE))
 				    .timestamp(GENESIS_TIMESTAMP/1000)
-				    .data(GENESIS_SOURCE)
+				    .transactions(genesisTransactions)
 				    .difficulty(GENESIS_DIFFICULTY)
 				    .nonce(GENESIS_NONCE)
 				    .build();
@@ -100,7 +106,8 @@ public class BlockUtil {
 	 * @param data
 	 * @return Block
 	 */
-	public static Block createNextBlock(Block previousBlock, String data) {
+	public static Block createRawNextBlock(List<Transaction> txList) {
+		Block previousBlock = BlockUtil.latestBlockFromBlockStore();
 		Integer nextIndex = previousBlock.getIndex()+1;
 		String previousHash = previousBlock.getHash();
 		//1. difficulty
@@ -110,7 +117,7 @@ public class BlockUtil {
 		long timestamp = CommonUtil.convertUnixTime(new Date());
 		//return block
 		// unix time
-		Block newBlock = BlockDifficulty.findBlock(nextIndex, previousHash, timestamp, data, difficulty);
+		Block newBlock = BlockDifficulty.findBlock(nextIndex, previousHash, timestamp, txList, difficulty);
 		return newBlock;
 	}
 	

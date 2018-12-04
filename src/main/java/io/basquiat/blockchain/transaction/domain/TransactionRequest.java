@@ -1,4 +1,4 @@
-package io.basquiat.blockchain.wallet.domain;
+package io.basquiat.blockchain.transaction.domain;
 
 import java.math.BigDecimal;
 
@@ -8,7 +8,11 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Address Domain
+ * TransactionRequest
+ * 
+ * <pre>
+ * sendTransaction 요청 정보
+ * </pre>
  * created by basquiat
  *
  */
@@ -16,17 +20,12 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Address {
+public class TransactionRequest {
 
 	/**
-	 * account
+	 * receive address
 	 */
-	private String account;
-	
-	/**
-	 * address
-	 */
-	private String address;
+	private String receivedAddress;
 	
 	/**
 	 * amount

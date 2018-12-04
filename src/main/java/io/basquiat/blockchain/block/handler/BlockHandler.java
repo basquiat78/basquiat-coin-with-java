@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 import io.basquiat.blockchain.block.BlockService;
 import io.basquiat.blockchain.block.domain.Block;
-import io.basquiat.blockchain.block.domain.DataVO;
+import io.basquiat.blockchain.block.domain.RequestMap;
 import reactor.core.publisher.Mono;
 
 /**
@@ -46,12 +46,22 @@ public class BlockHandler {
 	}
 
 	/**
-	 * mining
+	 * mining block
 	 * @param request
 	 * @return Mono<ServerResponse>
 	 */
-	public Mono<ServerResponse> mining(ServerRequest request) {
-		Mono<Block> mono = request.bodyToMono(DataVO.class).flatMap(dataVO -> blockService.mining(dataVO.getData()));
+	public Mono<ServerResponse> miningBlock(ServerRequest request) {
+		Mono<Block> mono = blockService.mineBlock();
+		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(mono, Block.class);
+	}
+	
+	/**
+	 * mining raw block with transaction info
+	 * @param request
+	 * @return Mono<ServerResponse>
+	 */
+	public Mono<ServerResponse> miningRawBlock(ServerRequest request) {
+		Mono<Block> mono = request.bodyToMono(RequestMap.class).flatMap(requestMap -> blockService.mineRawBlock(requestMap.getTransactions()));
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(mono, Block.class);
 	}
 	

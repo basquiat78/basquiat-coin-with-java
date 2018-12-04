@@ -6,6 +6,10 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +20,6 @@ import io.basquiat.blockchain.transaction.domain.Transaction;
 import io.basquiat.blockchain.transaction.domain.TransactionIn;
 import io.basquiat.blockchain.transaction.domain.TransactionOut;
 import io.basquiat.blockchain.transaction.domain.UnspentTransactionOut;
-import io.basquiat.blockchain.transaction.util.TransactionUtil;
 import io.basquiat.crypto.ECDSAUtil;
 import io.basquiat.util.Base58;
 
@@ -24,24 +27,42 @@ import io.basquiat.util.Base58;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TransactionTest {
 
-	//@Autowired
-	//private WebTestClient webTestClient;
-	
 	//@Test
 	public void test() {
 		
-		BigDecimal a = BigDecimal.valueOf(1.0);
-		BigDecimal b = BigDecimal.valueOf(1);
-		BigDecimal c = BigDecimal.valueOf(1.1);
-		System.out.println(a.compareTo(b) == 0);
-		System.out.println(b.compareTo(c) != 0);
-		System.out.println(a.compareTo(c) != 0);
+//		BigDecimal a = BigDecimal.valueOf(1.0);
+//		BigDecimal b = BigDecimal.valueOf(1);
+//		BigDecimal c = BigDecimal.valueOf(1.1);
+//		System.out.println(a.compareTo(b) == 0);
+//		System.out.println(b.compareTo(c) != 0);
+//		System.out.println(a.compareTo(c) != 0);
 //		hasValidTxIns: boolean = transaction.txIns
 //		        .map((txIn) => validateTxIn(txIn, transaction, aUnspentTxOuts))
 //		        .reduce((a, b) => a && b, true)
+
+		TransactionIn tx0 = TransactionIn.builder().txOutHash("txOutHash0").txOutIndex(0).build();
+		TransactionIn tx1 = TransactionIn.builder().txOutHash("txOutHash1").txOutIndex(1).build();
+		List<TransactionIn> a = Stream.of(tx0, tx1).collect(Collectors.toList());
+		System.out.println(a);
+		
+		Transaction tx = Transaction.builder().txIns(a).build();
+		System.out.println(tx);
+		AtomicInteger index = new AtomicInteger();
+		a = a.stream().map(mapper -> {
+										String signature = "signed_" + index.incrementAndGet();
+										return TransactionIn.builder()
+													 .txOutHash(mapper.getTxOutHash())
+													 .txOutIndex(mapper.getTxOutIndex())
+													 .signature(signature)
+													 .build();
+									}
+								 )
+				  .collect(Collectors.toList());
+		tx.setTxIns(a);
+		System.out.println(tx);
 	}
 	
-	@Test
+	//@Test
 	public void ECDSAtest() throws Exception {
 	        KeyPair keyPair = ECDSAUtil.generateKeyPair();
 	        PublicKey publicKey = keyPair.getPublic();
@@ -221,8 +242,14 @@ public class TransactionTest {
 		transactions.add(tx0);
 		transactions.add(tx1);
 		
-		List<UnspentTransactionOut> newUTxOs = TransactionUtil.createNewUTxOList(transactions);
-		System.out.println(newUTxOs);
+		List<TransactionIn> txIns = transactions.stream()
+				   .map(tx -> tx.getTxIns())
+				   .reduce((previous, next) -> Stream.concat(previous.stream(), next.stream())
+							  						 .collect( Collectors.toList()) )
+				   .get();
+		System.out.println(txIns);
+		//List<UnspentTransactionOut> newUTxOs = TransactionUtil.createNewUTxOs(transactions);
+		//System.out.println(newUTxOs);
 //		List<UnspentTransactionOut> consumedUtxOs = TransactionUtil.consumeUTxOList(transactions);
 //		System.out.println(consumedUtxOs);
 //		List<UnspentTransactionOut> totalUTxOs =  Stream.concat(newUTxOs.stream(), consumedUtxOs.stream())
@@ -231,4 +258,62 @@ public class TransactionTest {
 //		System.out.println(TransactionUtil.consumeAndResultUtxOList(totalUTxOs, consumedUtxOs));
 		
 	}
+	
+	//@Test
+	public void findAmoutFromUTxOsTest() {
+		//basquiat		PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA
+		//bsyoon		PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCvYq96Xu2eeJVUcWVhkmC7kuMe2rXfeVLL5rAjEPznvvCz6bK4gs9DBavTENa3ArNjet4QZdLyygCTtRqbhf4kkHx
+		//john			PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCyyEYVM65L6RB6Qgqk1XcPPSdBZZHaZ8fF95yfz3jCNEwecZtEi17cw6en2jBJSttaJ8PYdaWR4U2VKnj9WCDK4cd
+//		BigDecimal sendAmount = BigDecimal.valueOf(7);
+		String myAddress = "PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA0";
+		List<UnspentTransactionOut> uTxOList = new ArrayList<>();
+		UnspentTransactionOut uTxO0 = UnspentTransactionOut.builder().txOutHash("txOutHash0").txOutIndex(0).address("PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA0").amount(BigDecimal.valueOf(3)).build();
+		UnspentTransactionOut uTxO1 = UnspentTransactionOut.builder().txOutHash("txOutHash1").txOutIndex(1).address("PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA1").amount(BigDecimal.valueOf(2)).build();
+		UnspentTransactionOut uTxO2 = UnspentTransactionOut.builder().txOutHash("txOutHash2").txOutIndex(2).address("PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA2").amount(BigDecimal.valueOf(1)).build();
+		UnspentTransactionOut uTxO3 = UnspentTransactionOut.builder().txOutHash("txOutHash3").txOutIndex(3).address("PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA3").amount(BigDecimal.valueOf(3)).build();
+		UnspentTransactionOut uTxO4 = UnspentTransactionOut.builder().txOutHash("txOutHash4").txOutIndex(4).address("PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzMP6Yc8zHdzTbBZjzBvbUwKeAGD3XFhRDuuuvTpnJ6p4NhvPJDbFhQCwmGRNSaDsGJA9v6QwQrAcLcUg6EQAdpbA4").amount(BigDecimal.valueOf(3)).build();
+		uTxOList.add(uTxO0);
+		uTxOList.add(uTxO1);
+		uTxOList.add(uTxO2);
+		uTxOList.add(uTxO3);
+		uTxOList.add(uTxO4);
+		//TransactionOutMap map = TransactionUtil.findAmoutFromUTxOs(sendAmount, uTxOList);
+		System.out.println(uTxOList.stream().filter(uTxO -> myAddress.equals(uTxO.getAddress())).collect(Collectors.toList()));
+		
+		//List<TransactionIn> list = TransactionUtil.unsingedTransationInList(map.getMySelfUnspentTransactionOuts());
+		//System.out.println(list);
+		
+	}
+	
+	@Test
+	public void createTxOut() {
+		TransactionIn txin1 = TransactionIn.builder().txOutIndex(0).txOutHash("asdfasdf").signature("signature3").build();
+		TransactionIn txin2 = TransactionIn.builder().txOutIndex(1).txOutHash("asdfasd").signature("signature4").build();
+		TransactionIn txin3 = TransactionIn.builder().txOutIndex(2).txOutHash("asdfasdf").signature("signature5").build();
+		TransactionIn txin4 = TransactionIn.builder().txOutIndex(1).txOutHash("asdfasd").signature("signature5").build();
+		List<TransactionIn> txIns = Stream.of(txin1,txin2,txin3,txin4).collect(Collectors.toList());
+//		//System.out.println(TransactionUtil.createTransactionHash(tx1));
+//		
+//		TransactionPoolStore.addTransactionPoolStore(tx0);
+//		TransactionPoolStore.addTransactionPoolStore(tx1);
+//		TransactionPoolStore.addTransactionPoolStore(tx2);
+//		System.out.println(TransactionPoolStore.getTransactionList());
+//		
+//		Transaction tx3 = Transaction.builder().txHash("tx2").build();
+//		List<Transaction> tt = Stream.of(tx3).collect(Collectors.toList());
+//		//AtomicInteger index = new AtomicInteger();
+//		System.out.println(tt);
+//		TransactionPoolStore.updateTransactionPoolStore(tt);
+//		System.out.println(TransactionPoolStore.getTransactionList());
+		Map<String, List<String>> a  = txIns.stream().map(mapper -> mapper.getTxOutHash() + mapper.getTxOutIndex()).collect(Collectors.groupingBy(str -> str));
+//		List<String> a = Stream.of("test1", "test3", "test4", "test5", "test6", "test1").collect(Collectors.toList());
+//		Map<String, List<String>> r  = a.stream().collect(Collectors.groupingBy(str -> str));
+//		System.out.println(r);
+//		boolean ab = r.entrySet().stream().filter(items -> items.getValue().size() > 1 )
+//											.findAny()
+//											.map(item ->  true)
+//											.orElse(false);
+		System.out.println(a);
+	}
+	
 }

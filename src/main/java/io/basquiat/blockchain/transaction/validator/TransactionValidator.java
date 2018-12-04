@@ -8,7 +8,11 @@ import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +55,7 @@ public class TransactionValidator {
 	 * @param previousBlock
 	 * @return boolean
 	 */
-	public static boolean validatTransaction(Transaction transaction, List<UnspentTransactionOut> totalUTxOs) {
+	public static boolean validateTransaction(Transaction transaction, List<UnspentTransactionOut> totalUTxOs) {
 		boolean isValid = true;
 		
 		// 1. transaction hash 체크
@@ -63,8 +67,8 @@ public class TransactionValidator {
 		// 2. transaction의 txIn List를 돌면서 유효성을 체크한다.
 		// 그중에 하나라도 false가 뜨면 validateTxIn은 false를 반환한다. 
 		boolean validateTxIn = transaction.getTxIns().stream()
-													 .map(txIn -> TransactionValidator.validatTransactionIn(transaction, txIn, totalUTxOs))
-													 .reduce((previous, next) -> previous && next).get();
+													 .map(txIn -> TransactionValidator.validateTransactionIn(transaction, txIn, totalUTxOs))
+													 .reduce((previous, next) -> previous && next).orElse(true);
 
 		// false라면 invalid
 		if(!validateTxIn) {
@@ -82,7 +86,7 @@ public class TransactionValidator {
 		BigDecimal totalTransactionInAmounts = transaction.getTxIns().stream()
 																	 .map(txIn -> TransactionValidator.calculateTransactionInAmount(txIn, totalUTxOs))
 																	 .reduce((previous, next)->previous.add(next))
-																	 .get();
+																	 .orElse(BigDecimal.ZERO);
 		
 		// 5. totalTransactionOutAmounts과 totalTransactionInAmounts다르다면 invalid
 		if(totalTransactionOutAmounts.compareTo(totalTransactionInAmounts) != 0) {
@@ -94,6 +98,67 @@ public class TransactionValidator {
 		return isValid;
 	}
 
+	/**
+	 * block에 포함된 transactionlist의 유효성 체크를 해야한다.
+	 * 1. block의 transactionList를 넘겨받게 되는데 이때 이 리스트의 첫번째 인덱스의 transaction정보는 coinbase transaction이 된다.
+	 * 2. coinbase tranasction과 blockIndex로 coinbase transaction의 유호성 체크
+	 * 3. transactionList로부터 txIns를 추려낸다.
+	 * 4. txIns로부터 중복된 값이 있는지 체크한다.
+	 * @param transaction
+	 * @param totalUTxOs
+	 * @param blockIndex
+	 * @return
+	 */
+	public static boolean validateBlockTransactions(List<Transaction> transactionList, List<UnspentTransactionOut> totalUTxOs, Integer blockIndex) {
+		boolean isValid = true;
+		// 1. coinbase transaction
+		Transaction coinbaseTransaction = transactionList.get(0);
+		// 2. blockIndex와 coinbaseTransaction의 유효성을 체크한다.
+		if(!TransactionValidator.validateCoinbaseTransaction(coinbaseTransaction, blockIndex)) {
+			LOG.info("invalid coinbase transaction");
+			return false;
+		}
+		
+		// 3. TxIns from transactionList
+		List<TransactionIn> txIns = transactionList.stream()
+												   .map(tx -> tx.getTxIns())
+												   .reduce( (previous, next) -> Stream.concat(previous.stream(), next.stream())
+								   							  						  .collect( Collectors.toList()) )
+												   .orElse(new ArrayList<TransactionIn>());
+		
+		// 4. 중복 체크
+		if(TransactionValidator.hasDuplicateTransactionIn(txIns)) {
+			return false;
+		}
+		
+		// 5. coinbase transaction을 제외한 모든 트랜잭젼과 utxo list 유효성 즉, validateTransaction 체크를 해야한다.
+		List<Transaction> txWithoutCoinbase = transactionList.subList(1, transactionList.size());
+		isValid = txWithoutCoinbase.stream()
+								   .map(tx -> TransactionValidator.validateTransaction(tx, totalUTxOs))
+								   .reduce((previous, next) -> previous && next).orElse(true);
+		return isValid;
+	}
+
+	/**
+	 * txIns 리스트에서 같은 txOutHash와 txOutIndex가 같은 txin이 있는지 조사한다.
+	 * 있다면 true를 없다면 false를 반환할것이다.
+	 * @param txIns
+	 * @return
+	 */
+	public static boolean hasDuplicateTransactionIn(List<TransactionIn> txIns) {
+		// 스트링을 조회해서 같은 값이 있다면 값은 키값으로 배열로 반환한다.
+		// eg. [test0=[test0], test1=[test1], test2=[test2, test2] ........
+		Map<String, List<String>> convertMap  = txIns.stream()
+													 .map(mapper -> mapper.getTxOutHash() + mapper.getTxOutIndex())
+													 .collect(Collectors.groupingBy(string -> string));
+		// 위의 convertMap에서 items.getValue가 1보다 큰 경우 예를 들면 test2=[test2, test2]같은 녀석이 있다면 true로 반환할 것이고 없다면 false
+		return convertMap.entrySet().stream()
+									.filter(items -> items.getValue().size() > 1 )
+									.findAny()
+									.map(item ->  true)
+									.orElse(false);
+	}
+	
 	/**
 	 * 개별적인 uTxO로부터 amount를 구한다.
 	 * @param transactionIn
@@ -112,7 +177,7 @@ public class TransactionValidator {
 	 * @param totalUTxOs
 	 * @return boolean
 	 */
-	public static boolean validatTransactionIn(Transaction transaction, TransactionIn transactionIn, List<UnspentTransactionOut> totalUTxOs) {
+	public static boolean validateTransactionIn(Transaction transaction, TransactionIn transactionIn, List<UnspentTransactionOut> totalUTxOs) {
 		Boolean isValid = true;
 		// 1. totalUTxOs리스트에서 transactionIn의 정보를 대조해 본다.
 		// utxo의 outHash, index와 transactionIn의 hash, index가 같은 utxo을 조회한다. 없으면 유효하지 않다.
@@ -158,7 +223,7 @@ public class TransactionValidator {
 			return false;
 	    }
 		// 1. txHash 체크
-	    if( transaction.getTxHash().equals(TransactionUtil.createTransactionHash(transaction)) ) {
+	    if( !transaction.getTxHash().equals(TransactionUtil.createTransactionHash(transaction)) ) {
 	    	return false;
 	    }
 	    

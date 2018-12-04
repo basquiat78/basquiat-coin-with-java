@@ -1,5 +1,10 @@
 package io.basquiat.test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +17,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.basquiat.blockchain.block.difficulty.BlockDifficulty;
 import io.basquiat.blockchain.block.domain.Block;
-import io.basquiat.blockchain.block.domain.BlockStore;
 import io.basquiat.blockchain.block.util.BlockUtil;
+import io.basquiat.blockchain.transaction.domain.Transaction;
+import io.basquiat.blockchain.transaction.domain.UnspentTransactionOut;
 import io.basquiat.util.CommonUtil;
-import io.basquiat.util.FileIOUtil;
 import io.basquiat.util.Sha256Util;
 
 @ExtendWith(SpringExtension.class)
@@ -27,6 +32,25 @@ public class blcokTest {
 	
 	@Test
 	public void test() {
+		
+		Transaction a = Transaction.builder().txHash("a").build();
+		Transaction b = Transaction.builder().txHash("b").build();
+		Transaction c = Transaction.builder().txHash("c").build();
+		Transaction d = Transaction.builder().txHash("d").build();
+		Transaction e = Transaction.builder().txHash("a").build();
+		Transaction f = Transaction.builder().txHash("f").build();
+		Transaction g = Transaction.builder().txHash("g").build();
+		Transaction h = Transaction.builder().txHash("a").build();
+		List<Transaction> list = Stream.of(a,b,c,d,e,f,g,h).collect(Collectors.toList());
+		
+		List<Transaction> fileter = list.stream().filter(tx -> "a".equals(tx.getTxHash()))
+												 .collect(Collectors.toList());
+				
+		
+		
+		System.out.println(fileter);
+		
+		
 //		Map<Integer, String> blockMap = new ConcurrentHashMap<>();
 //		blockMap.put(0, "block0");
 //		blockMap.put(4, "block4");
@@ -40,8 +64,8 @@ public class blcokTest {
 //		List<String> list = new ArrayList<>(collection);
 //		System.out.println(list.get(list.size()-1));
 		
-		BlockUtil.initializeBlockStore();
-		System.out.println(BlockStore.getBlockList());
+//		BlockUtil.initializeBlockStore();
+//		System.out.println(BlockStore.getBlockList());
 	}
 	
 	//@Test
@@ -55,30 +79,31 @@ public class blcokTest {
 	//@Test
 	public void createBlockTest() {
 
-		Block genesisBlock = BlockUtil.genesisBlock();
-		System.out.println(genesisBlock);
-		
-		Block secondBlock = BlockUtil.createNextBlock(genesisBlock, "second");
-		System.out.println(secondBlock);
-		
-		Block thirdBlock = BlockUtil.createNextBlock(secondBlock, "third");
-		System.out.println(thirdBlock);
+		System.out.println(new ArrayList<UnspentTransactionOut>());
+//		Block genesisBlock = BlockUtil.genesisBlock();
+//		System.out.println(genesisBlock);
+//		
+//		Block secondBlock = BlockUtil.createNextBlock(genesisBlock, "second");
+//		System.out.println(secondBlock);
+//		
+//		Block thirdBlock = BlockUtil.createNextBlock(secondBlock, "third");
+//		System.out.println(thirdBlock);
 		
 	}
 	
 	//@Test
 	public void writeBlockFileTest() throws JsonProcessingException {
-		Block genesisBlock = BlockUtil.genesisBlock();
-		System.out.println(genesisBlock);
-		FileIOUtil.writeJsonBlockFile(genesisBlock);
-		
-		Block secondBlock = BlockUtil.createNextBlock(genesisBlock, "second");
-		System.out.println(secondBlock);
-		FileIOUtil.writeJsonBlockFile(secondBlock);
-		
-		Block thirdBlock = BlockUtil.createNextBlock(secondBlock, "third");
-		System.out.println(thirdBlock);
-		FileIOUtil.writeJsonBlockFile(thirdBlock);
+//		Block genesisBlock = BlockUtil.genesisBlock();
+//		System.out.println(genesisBlock);
+//		FileIOUtil.writeJsonBlockFile(genesisBlock);
+//		
+//		Block secondBlock = BlockUtil.createNextBlock(genesisBlock, "second");
+//		System.out.println(secondBlock);
+//		FileIOUtil.writeJsonBlockFile(secondBlock);
+//		
+//		Block thirdBlock = BlockUtil.createNextBlock(secondBlock, "third");
+//		System.out.println(thirdBlock);
+//		FileIOUtil.writeJsonBlockFile(thirdBlock);
 	}
 
 	//@Test

@@ -2,6 +2,7 @@ package io.basquiat.config;
 
 
 import java.security.Security;
+import java.util.List;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -14,6 +15,9 @@ import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.domain.BlockStore;
 import io.basquiat.blockchain.block.util.BlockUtil;
+import io.basquiat.blockchain.transaction.domain.UnspentTransactionOut;
+import io.basquiat.blockchain.transaction.domain.UnspentTransactionOutStore;
+import io.basquiat.blockchain.transaction.util.TransactionUtil;
 import io.basquiat.blockchain.wallet.domain.CoinbaseStore;
 import io.basquiat.util.FileIOUtil;
 
@@ -35,26 +39,42 @@ public class BlockChainConfig extends DelegatingWebFluxConfiguration {
 	public void blockStoreInitialize() {
 		// 암호화 provider 세팅
 		Security.addProvider(new BouncyCastleProvider());
-		// 1. 최초 서버가 뜰때 특정 폴더의 파일을 본다.
-		// 2. 파일이 없다면 genesis block을 생성한다.
+		// 1. coinbase 설정
+		String coinbaseAccount = FileIOUtil.getCoinbaseAccount();
+		// 만일 null이라면 주소가 생성되지 않았기 때문에 패스
+		// 존재한다면 이 account를 초기 coinbase로 정한다.
+		if(coinbaseAccount == null) {
+			//null이라면 coinbase account를 생성한다.
+			LOG.info("you must create coinbase account");
+		} else {
+			CoinbaseStore.setCoinbase(coinbaseAccount);
+		}
+		
+		// 2. genesisBlock 생성 또는 초기화
 		if(FileIOUtil.blockFileLength() == 0) {
-			Block genesisBlock = BlockUtil.genesisBlock();
-			LOG.info("generate Genesis Block!");
-			BlockStore.addBlockStore(genesisBlock);
-			FileIOUtil.writeJsonBlockFile(genesisBlock);
+			if(CoinbaseStore.getCoinbase() != null) {
+				Block genesisBlock = BlockUtil.genesisBlock();
+				LOG.info("generate Genesis Block!");
+				BlockStore.addBlockStore(genesisBlock);
+				FileIOUtil.writeJsonBlockFile(genesisBlock);
+			}
 		} else {
 			BlockUtil.initializeBlockStore();
 			LOG.info("BlockStore Initialize!");
 		}
 		
-		// 3. coinbase 설정
-		String coinbaseAccount = FileIOUtil.getCoinbaseAccount();
-		// 만일 null이라면 주소가 생성되지 않았기 때문에 패스
-		// 존재한다면 이 account를 초기 coinbase로 정한다.
-		if(coinbaseAccount != null) {
-			CoinbaseStore.setCoinbaseStore(coinbaseAccount);
+		// 3. UnspentTransactionOut list 초기화
+		if(BlockStore.getBlockList().size() > 0) {
+			Integer index = 0;
+			for(Block block : BlockStore.getBlockList()) {
+				// 최초의 genesis block은 제외한다
+				if(index > 0) {
+					List<UnspentTransactionOut> changeUTxOs = TransactionUtil.processTransactions(block.getTransactions(), UnspentTransactionOutStore.getUTxOs(), index);
+					UnspentTransactionOutStore.changeUTxOStore(changeUTxOs);
+				}
+				index++;
+			}
 		}
-		
 	}
 
 }

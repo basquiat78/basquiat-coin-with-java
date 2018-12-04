@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import io.basquiat.blockchain.block.difficulty.BlockDifficulty;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.util.BlockUtil;
 
@@ -32,7 +33,7 @@ public class BlockValidator {
 	 * @param previousBlock
 	 * @return boolean
 	 */
-	public static boolean validatNewBlock(Block newBlock, Block previousBlock) {
+	public static boolean validateNewBlock(Block newBlock, Block previousBlock) {
 		boolean isValid = true;
 		// 1. index 체크
 		// 새로운 블록의 인데스에서 1을 뺀 값이 이전 블록의 index와 같아야 하며 같지 않다면 이 블록은 유효하지 않다.
@@ -50,7 +51,7 @@ public class BlockValidator {
 		String regenerateNewBlockHash = BlockUtil.createHash(newBlock.getIndex(), 
 															 newBlock.getPreviousHash(), 
 															 newBlock.getTimestamp(), 
-															 newBlock.getData(),
+															 newBlock.getTransactions().toString(),
 															 newBlock.getDifficulty(),
 															 newBlock.getNonce());
 		if( !regenerateNewBlockHash.equals(newBlock.getHash()) ) {
@@ -73,7 +74,7 @@ public class BlockValidator {
 	 * @param previousBlock
 	 * @return boolean
 	 */
-	public static boolean validatTimestamp(Block newBlock, Block previousBlock) {
+	public static boolean validateTimestamp(Block newBlock, Block previousBlock) {
 		// 이전 블록의 timestamp에서 60 (unixTime 1분)을 뺀 값이 새로운 블록의 timestamp보다 작아야 한다. 당연한가???
 		// 근데 1분의 근거는??
 		// 새로운 블록의 timestamp에서 60을 뺀 값은 현재 시간보다 작아야 한다. 당연한건데?
@@ -87,7 +88,7 @@ public class BlockValidator {
 	 * @param receivedGenesisBlock
 	 * @return boolean
 	 */
-	public static boolean validatGenesisBlock(Block receivedGenesisBlock) {
+	public static boolean validateGenesisBlock(Block receivedGenesisBlock) {
 		boolean isValid = true;
 		// 1. 받은 genesis block의 index와 현재 노드의 genesis block의 index 체크
 		Block genesisBlock = BlockUtil.genesisBlockFromFileRepository();
@@ -106,7 +107,7 @@ public class BlockValidator {
 			return false;
 		}
 		// 4. 받은 genesis block의 data와 현재 노드의 genesis block의 data 체크
-		if( !genesisBlock.getData().equals(receivedGenesisBlock.getData()) ) {
+		if( !genesisBlock.getTransactions().toString().equals(receivedGenesisBlock.getTransactions().toString()) ) {
 			LOG.info("invalid Receidved Genesis Block Data");
 			return false;
 		}
@@ -114,7 +115,7 @@ public class BlockValidator {
 		String regenerateGenesisBlockHash = BlockUtil.createHash(receivedGenesisBlock.getIndex(), 
 																 receivedGenesisBlock.getPreviousHash(), 
 																 receivedGenesisBlock.getTimestamp(), 
-																 receivedGenesisBlock.getData(),
+																 receivedGenesisBlock.getTransactions().toString(),
 																 receivedGenesisBlock.getDifficulty(),
 																 receivedGenesisBlock.getNonce());
 		if( !regenerateGenesisBlockHash.equals(genesisBlock.getHash()) ) {
@@ -124,4 +125,31 @@ public class BlockValidator {
 		return isValid;
 	}
 	
+	/**
+	 * 1. Block의 정보로 생성한 hash값이 Block에 존재하는 hash랑 값이 같은지 체크한다.
+	 * 2. difficulty가 제대로 적용된 Block인지 체크한다.
+	 * @param block
+	 * @return boolean
+	 */
+	public static boolean isValidHashBlockSelf(Block block) {
+		boolean isValid = true;
+		String hash = block.getHash();
+		String regenereateHash = BlockUtil.createHash(block.getIndex(), 
+													  block.getPreviousHash(), 
+													  block.getTimestamp(),
+													  block.getTransactions().toString(), 
+													  block.getDifficulty(), 
+													  block.getNonce());
+		// 생성한 hash와 block정보에 있는 hash랑 다르면 false리턴
+		if(!hash.equals(regenereateHash)) {
+			return false;
+		}
+		
+		// difficulty체크가 맞지 않으면 false리턴
+		if(!BlockDifficulty.matchesDifficulty(block.getHash(), block.getDifficulty())) {
+			return false;
+		}
+		return isValid;
+	}
+
 }
