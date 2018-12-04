@@ -5,7 +5,7 @@ Simple Basquiat Coin Blockchain with Java Like Bitcoin
   1.2 Simple Mining API Complete    
   1.3 Block Validation is Complete    
   1.4 PoW (Difficulty and nounce Adjustment)    
-  1.5 simple Transaction    
+  1.5 simple Transaction with uTxO    
   1.6 wallet    
   1.7 transaction pool    
   
