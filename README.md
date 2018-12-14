@@ -4,10 +4,10 @@ Simple Basquiat Coin Blockchain with Java Like Bitcoin
   1.1 Simple Block Complete    
   1.2 Simple Mining API Complete    
   1.3 Block Validation is Proceeding    
-  1.4 Block Spec add nonce, difficulty
-  1.5 send transaction (send coin)
-  1.6 mining block with transaction
-  1.7 transaction pool
+  1.4 Block Spec add nonce, difficulty    
+  1.5 send transaction (send coin)    
+  1.6 mining block with transaction    
+  1.7 transaction pool    
   
   
 # Peer to Peer
@@ -15,7 +15,7 @@ Simple Basquiat Coin Blockchain with Java Like Bitcoin
 	2. block 받기
 	3. 받은 블록 Validate
 	4. replace Block
-
+	5. transaction pool
 # Settings
 See [application.yml](https://github.com/basquiat78/basquiat-coin-with-java/blob/master/src/main/resources/application.yml)
 
