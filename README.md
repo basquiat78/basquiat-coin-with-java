@@ -3,14 +3,22 @@ Simple Basquiat Coin Blockchain with Java Like Bitcoin
 # 1. Block
   1.1 Simple Block Complete    
   1.2 Simple Mining API Complete    
-  1.3 Block Validation is Complete    
-  1.4 PoW (Difficulty and nounce Adjustment)    
-  1.5 simple Transaction with uTxO    
-  1.6 wallet    
-  1.7 transaction pool    
+  1.3 Block Validation is Proceeding    
+  1.4 Block Spec add nonce, difficulty
+  1.5 send transaction (send coin)
+  1.6 mining block with transaction
+  1.7 transaction pool
   
-  Next Step is peer to peer broadcasting Websocket    
-  broadcast for sync block data, transaction pool    
+  
+# Peer to Peer
+	1. websocekt
+	2. block 받기
+	3. 받은 블록 Validate
+	4. replace Block
+
+# Settings
+See [application.yml](https://github.com/basquiat78/basquiat-coin-with-java/blob/master/src/main/resources/application.yml)
+
   
 현재 구현된 기능은 심플하게 싱글 노드에서 여러 개의 계정을 생성한다.    
 생성한 계정들은 api로 coinbase를 교체할 수 있고 마이닝을 하게 되면 해당 coinbase에 해당하는 주소로 100 코인이 주어지게 된다.
