@@ -14,7 +14,11 @@ import org.springframework.stereotype.Component;
 import io.basquiat.blockchain.block.difficulty.BlockDifficulty;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.domain.BlockStore;
+import io.basquiat.blockchain.block.validator.BlockValidator;
+import io.basquiat.blockchain.pool.util.TransactionPoolUtil;
 import io.basquiat.blockchain.transaction.domain.Transaction;
+import io.basquiat.blockchain.transaction.domain.UnspentTransactionOut;
+import io.basquiat.blockchain.transaction.domain.UnspentTransactionOutStore;
 import io.basquiat.blockchain.transaction.util.TransactionUtil;
 import io.basquiat.util.CommonUtil;
 import io.basquiat.util.FileIOUtil;
@@ -180,6 +184,34 @@ public class BlockUtil {
 	 */
 	public static Block blockByIndexFromBlockStore(Integer index) {
 		return BlockStore.getBlock(index);
+	}
+	
+	/**
+	 * 현재의 block list를 peer로부터 받은 block list로 변경한다.
+	 * 1. 받은 블록체은으로 uTxOs를 새로 생성한다.
+	 * @param receivedBlockList
+	 */
+	public static void changeBlockchain(List<Block> receivedBlockList) {
+		// 1. uTxOs 생성
+		List<UnspentTransactionOut> newUTxOs = BlockValidator.validBlockchain(receivedBlockList);
+		if(newUTxOs == null) {
+			LOG.info("receivedBlockList is invalid");
+		}
+		
+		// 2. 새로 받은 블록체인의 difficulty 누적량과 현재 노드의 블록체인의 difficulty 누적량을 비교한다.
+		// 3. 새로받은 블록체인의 difficulty 누적량이 현재 블록체인의 difficulty 누적량보다 커야 유효하다고 판단할 수 있다.
+	    if ( BlockDifficulty.getAccumulatedDifficulty(receivedBlockList) > BlockDifficulty.getAccumulatedDifficulty(BlockStore.getBlockList())) {
+	        LOG.info("Current Blockchain will change to received Blockchain");
+	        // blockStore의 map정보를 receivedBlockList로 바꾼다.
+			BlockStore.changeBlockStore(receivedBlockList);
+			FileIOUtil.removeAndwriteJsonBlockFile(receivedBlockList);
+			//  uTxOs update
+			UnspentTransactionOutStore.changeUTxOStore(newUTxOs);
+			//  transaction pool 
+			TransactionPoolUtil.upadateTransactionPool(UnspentTransactionOutStore.getUTxOs());
+	    } else {
+	    	LOG.info("receivedBlockList is invalid");
+	    }
 	}
 	
 	/**

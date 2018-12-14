@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.basquiat.blockchain.block.domain.Block;
@@ -21,6 +22,8 @@ import io.basquiat.blockchain.wallet.util.WalletUtil;
 import io.basquiat.blockchain.wallet.validator.WalletValidator;
 import io.basquiat.util.CommonUtil;
 import io.basquiat.util.FileIOUtil;
+import io.basquiat.websocket.BroadcastService;
+import io.basquiat.websocket.type.MessageType;
 import reactor.core.publisher.Mono;
 
 /**
@@ -31,6 +34,9 @@ import reactor.core.publisher.Mono;
 @Service("blockchainService")
 public class BlockService {
 
+	@Autowired
+	private BroadcastService broadcastService;
+	
 	/**
 	 * find Block by blockIndex
 	 * @param blockIndex
@@ -41,7 +47,7 @@ public class BlockService {
 		if(CommonUtil.validNumber(blockIndex)) {
 			mono = Mono.just(BlockUtil.blockByIndexFromBlockStore(Integer.parseInt(blockIndex)));
 		}
-		return  mono;  
+		return mono;  
 	}
 	
 	/**
@@ -49,7 +55,7 @@ public class BlockService {
 	 * @return Mono<Block>
 	 */
 	public Mono<Block> findLatestBlock() {
-		return  Mono.just(BlockUtil.latestBlockFromBlockStore());
+		return Mono.just(BlockUtil.latestBlockFromBlockStore());
 	}
 	
 	/**
@@ -57,7 +63,7 @@ public class BlockService {
 	 * @return Mono<Block>
 	 */
 	public Mono<Block> mineBlock() {
-		return  Mono.just(this.miningBlock());
+		return Mono.just(this.miningBlock());
 	}
 
 	/**
@@ -66,7 +72,7 @@ public class BlockService {
 	 * @return Mono<Block>
 	 */
 	public Mono<Block> mineRawBlock(List<Transaction> txList) {
-		return  Mono.just(this.miningRawBlock(txList));
+		return Mono.just(this.miningRawBlock(txList));
 	}
 	
 	/**
@@ -137,8 +143,8 @@ public class BlockService {
 				UnspentTransactionOutStore.changeUTxOStore(changeUTxOs);
 				// 5. transaction pool 
 				TransactionPoolUtil.upadateTransactionPool(UnspentTransactionOutStore.getUTxOs());
-				//TODO
-				// websocket을 통해 새로운 블록을 전파해야한다.}
+				// websocket을 통해 새로운 블록을 전파해야한다.
+				broadcastService.broadcast(MessageType.RESPONSE_LATESTBLOCK);
 			}
 		} else {
 			return null;

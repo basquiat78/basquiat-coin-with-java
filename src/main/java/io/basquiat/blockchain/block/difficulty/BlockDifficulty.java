@@ -16,7 +16,7 @@ import io.basquiat.blockchain.transaction.domain.Transaction;
 import io.basquiat.util.CommonUtil;
 
 /**
- * Block Validator
+ * BlockDifficulty
  * created by basquiat
  *
  */
@@ -41,23 +41,23 @@ public class BlockDifficulty {
 	 * hexToBinary Lookup Table
 	 */
 	private static final Map<String, String> LOOKUP_TABLE = Stream.of(
-															 new AbstractMap.SimpleImmutableEntry<>("0", "0000"),
-															 new AbstractMap.SimpleImmutableEntry<>("1", "0001"),
-															 new AbstractMap.SimpleImmutableEntry<>("2", "0010"),
-															 new AbstractMap.SimpleImmutableEntry<>("3", "0011"),
-															 new AbstractMap.SimpleImmutableEntry<>("4", "0100"),
-															 new AbstractMap.SimpleImmutableEntry<>("5", "0101"),
-															 new AbstractMap.SimpleImmutableEntry<>("6", "0110"),
-															 new AbstractMap.SimpleImmutableEntry<>("7", "0111"),
-															 new AbstractMap.SimpleImmutableEntry<>("8", "1000"),
-															 new AbstractMap.SimpleImmutableEntry<>("9", "1001"),
-															 new AbstractMap.SimpleImmutableEntry<>("a", "1010"),
-															 new AbstractMap.SimpleImmutableEntry<>("b", "1011"),
-															 new AbstractMap.SimpleImmutableEntry<>("c", "1100"),
-															 new AbstractMap.SimpleImmutableEntry<>("d", "1101"),
-															 new AbstractMap.SimpleImmutableEntry<>("e", "1110"),
-															 new AbstractMap.SimpleImmutableEntry<>("f", "1111")
-															).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+																	 new AbstractMap.SimpleImmutableEntry<>("0", "0000"),
+																	 new AbstractMap.SimpleImmutableEntry<>("1", "0001"),
+																	 new AbstractMap.SimpleImmutableEntry<>("2", "0010"),
+																	 new AbstractMap.SimpleImmutableEntry<>("3", "0011"),
+																	 new AbstractMap.SimpleImmutableEntry<>("4", "0100"),
+																	 new AbstractMap.SimpleImmutableEntry<>("5", "0101"),
+																	 new AbstractMap.SimpleImmutableEntry<>("6", "0110"),
+																	 new AbstractMap.SimpleImmutableEntry<>("7", "0111"),
+																	 new AbstractMap.SimpleImmutableEntry<>("8", "1000"),
+																	 new AbstractMap.SimpleImmutableEntry<>("9", "1001"),
+																	 new AbstractMap.SimpleImmutableEntry<>("a", "1010"),
+																	 new AbstractMap.SimpleImmutableEntry<>("b", "1011"),
+																	 new AbstractMap.SimpleImmutableEntry<>("c", "1100"),
+																	 new AbstractMap.SimpleImmutableEntry<>("d", "1101"),
+																	 new AbstractMap.SimpleImmutableEntry<>("e", "1110"),
+																	 new AbstractMap.SimpleImmutableEntry<>("f", "1111")
+																	).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	
 	/**
 	 * <pre>
@@ -79,7 +79,6 @@ public class BlockDifficulty {
 		  ) {
 			return BlockDifficulty.adjustDifficulty(latestBlock, totalList);
 		}
-		
 		return latestBlock.getDifficulty();
 	}
 
@@ -99,12 +98,10 @@ public class BlockDifficulty {
 		long expectedTime = Long.parseLong(String.valueOf(BLOCK_GENERATION_INTERVAL * BLOCK_DIFFICULTY_ADJUSTMENT_INTERVAL));
 		// 최신 블록의 timestamp와 previousAdjustDifficultyBlock의 timestamp의 차이
 		long takenTime = latestBlock.getTimestamp() - previousAdjustDifficultyBlock.getTimestamp();
-		
 		// takenTime이 예상 시간을 2로 나눈것보다 작다면 난이도가 낮으므로 이전 difficulty에서 증가시킨다.
 		if(takenTime < expectedTime/2 ) {
 			return previousAdjustDifficultyBlock.getDifficulty() + 1; 
 		}
-		
 		// 예상 시간의 두배보다 takenTime의 시간이 크다면 난이도가 높으니 낮춘다.
 		if(takenTime > expectedTime*2 ) {
 			return previousAdjustDifficultyBlock.getDifficulty() - 1; 
@@ -158,7 +155,7 @@ public class BlockDifficulty {
 			String hash = BlockUtil.createHash(nextIndex, previousHash, timestamp, tx.toString(), difficulty, nonce);
 			System.out.println("findBlock hash : " + hash);
 		    if(BlockDifficulty.matchesDifficulty(hash, difficulty)) {
-		        return Block.builder()
+		    	return Block.builder()
 		        		    .index(nextIndex)
 		        		    .hash(hash)
 		        		    .previousHash(previousHash)
@@ -170,6 +167,24 @@ public class BlockDifficulty {
 		    }
 		    nonce++;
 		}
+	}
+	
+	/**
+	 * <pre>
+	 * peer로부터 받은 blockchain의 누적된 difficulty를 계산한다.
+	 * @see referece -> https://steemit.com/kr/@niipoong/bitcoin-blockchain-branch
+	 * </pre>
+	 * @param blockList
+	 * @return Integer
+	 */
+	public static Integer getAccumulatedDifficulty(List<Block> blockList) {
+	    return blockList.stream()
+	    				.map(block -> block.getDifficulty())
+	    				.map(difficulty -> {
+	    									 Double doubleValue = Math.pow(2, difficulty);
+	    									 return doubleValue.intValue();
+	    									})
+	    				.reduce((previous, next) -> previous + next).orElse(0);
 	}
 	
 }

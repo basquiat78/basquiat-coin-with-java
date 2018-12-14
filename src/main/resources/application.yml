@@ -2,11 +2,25 @@
 spring:
   profiles:
     active: local
-    
+
 ---
 #spring profiles : LOCAL
 spring:
   profiles: local
+
+# netty server port
+tcp:
+  port: 8090
+
+# netty server parent thread count
+boss:
+  thread:
+    count: 1
+
+# netty server child thread count
+worker:
+  thread:
+    count: 1
 
 #logging
 logging:
@@ -18,6 +32,7 @@ logging:
 
 # timestamp is 2018-11-21 wednesday
 genesis:
+  address: PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzo3kBF9AiJysArh8V2GJn6FreBCz7PiDV37BaTyf3tcnZ1UUHJ3EC36YfoTDWp5R79MuBydTrKHbjo7zA9RBX7bi
   hash:
     value: 'Jean-Michel Basquiat die August 12, 1988'
   timestamp: 1542781414755
@@ -46,10 +61,13 @@ algorithm:
     name: secp256k1
   provider: BC
   signature: SHA256withECDSA
-  
+
 coinbase:
   amount: 100
   path: C:/Users/basquiat/git/basquiat-coin-with-java/wallet/coinbase/
-  
+
 wallet:
   path: C:/Users/basquiat/git/basquiat-coin-with-java/wallet/
+
+peer:
+  path: C:/Users/basquiat/git/basquiat-coin-with-java/peer/

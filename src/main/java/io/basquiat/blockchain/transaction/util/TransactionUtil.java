@@ -27,7 +27,6 @@ import io.basquiat.blockchain.transaction.domain.TransactionOut;
 import io.basquiat.blockchain.transaction.domain.TransactionOutMap;
 import io.basquiat.blockchain.transaction.domain.UnspentTransactionOut;
 import io.basquiat.blockchain.transaction.validator.TransactionValidator;
-import io.basquiat.blockchain.wallet.util.WalletUtil;
 import io.basquiat.crypto.ECDSAUtil;
 import io.basquiat.util.Base58;
 import io.basquiat.util.Sha256Util;
@@ -42,7 +41,14 @@ public class TransactionUtil {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(TransactionUtil.class);
 	
+	static String GENESIS_ADDRESS;
+	
 	static BigDecimal COINBASE_AMOUNT;
+	
+	@Value("${genesis.address}")
+	private void setGenesisAddress(String genesisAddress) {
+		GENESIS_ADDRESS = genesisAddress;
+    }
 	
 	@Value("${coinbase.amount}")
 	private void setCoinbaseAmount(BigDecimal coinbaseAmount) {
@@ -81,8 +87,7 @@ public class TransactionUtil {
 		// genesisTxIns
 		List<TransactionIn> txIns = Stream.of(TransactionIn.builder().signature("").txOutHash("").txOutIndex(0).build()).collect(Collectors.toList());
 		// genesisTxOut
-		String coinbaseAddress = WalletUtil.getCoinbaseWalletAddress();
-		List<TransactionOut> txOuts = Stream.of(TransactionOut.builder().address(coinbaseAddress).amount(COINBASE_AMOUNT).build()).collect(Collectors.toList());
+		List<TransactionOut> txOuts = Stream.of(TransactionOut.builder().address(GENESIS_ADDRESS).amount(COINBASE_AMOUNT).build()).collect(Collectors.toList());
 		
 		// Transaction
 		Transaction transaction = Transaction.builder().txIns(txIns).txOuts(txOuts).build();
@@ -494,9 +499,9 @@ public class TransactionUtil {
 		List<TransactionIn> unsignedTxIns = TransactionUtil.unsingedTransationInList(transactionOutMap.getSelfUnspentTransactionOuts());
 		// 6. transactionOut List를 생성한다.
 		List<TransactionOut> txOuts = TransactionUtil.createTransactionOutList(receivedAddress, 
-																						   address, 
-																						   amount, 
-																						   transactionOutMap.getPayBack());
+																			   address, 
+																			   amount, 
+																			   transactionOutMap.getPayBack());
 		// new transactino 생성
 		Transaction newTransaction = Transaction.builder()
 												.txIns(unsignedTxIns)

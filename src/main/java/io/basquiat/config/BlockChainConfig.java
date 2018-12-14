@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.domain.BlockStore;
@@ -27,7 +26,7 @@ import io.basquiat.util.FileIOUtil;
  *
  */
 @Component
-public class BlockChainConfig extends DelegatingWebFluxConfiguration {
+public class BlockChainConfig {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BlockChainConfig.class);
 	
@@ -52,12 +51,10 @@ public class BlockChainConfig extends DelegatingWebFluxConfiguration {
 		
 		// 2. genesisBlock 생성 또는 초기화
 		if(FileIOUtil.blockFileLength() == 0) {
-			if(CoinbaseStore.getCoinbase() != null) {
-				Block genesisBlock = BlockUtil.genesisBlock();
-				LOG.info("generate Genesis Block!");
-				BlockStore.addBlockStore(genesisBlock);
-				FileIOUtil.writeJsonBlockFile(genesisBlock);
-			}
+			Block genesisBlock = BlockUtil.genesisBlock();
+			LOG.info("generate Genesis Block!");
+			BlockStore.addBlockStore(genesisBlock);
+			FileIOUtil.writeJsonBlockFile(genesisBlock);
 		} else {
 			BlockUtil.initializeBlockStore();
 			LOG.info("BlockStore Initialize!");

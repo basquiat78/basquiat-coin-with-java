@@ -3,6 +3,7 @@ package io.basquiat.blockchain.transaction;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.basquiat.blockchain.block.domain.BlockStore;
@@ -16,6 +17,8 @@ import io.basquiat.blockchain.transaction.util.TransactionUtil;
 import io.basquiat.blockchain.wallet.domain.CoinbaseStore;
 import io.basquiat.blockchain.wallet.util.WalletUtil;
 import io.basquiat.blockchain.wallet.validator.WalletValidator;
+import io.basquiat.websocket.BroadcastService;
+import io.basquiat.websocket.type.MessageType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,13 +30,17 @@ import reactor.core.publisher.Mono;
 @Service("transactionService")
 public class TransactionService {
 
+	@Autowired
+	private BroadcastService broadcastService;
+	
 	/**
 	 * send transaction
 	 * 1. transactionRequest의 received address와 amount, account를 체크한다.
 	 * 2. account의 경우에는 해당 node에 주소가 있는지 확인을 먼저 해야한다.
 	 * 
 	 * 4. transactionPool, uTxOs와 나머지 정보를 통해 new transaction을 생성한다.
-	 * 5. 최종적으로 모든 조건이 맞으면 transaction pool에 추가한다. 
+	 * 5. 최종적으로 모든 조건이 맞으면 transaction pool에 추가한다.
+	 * 6. 연결된 socket client/server로 broadcasting을 한다.
 	 * @param transactionRequest
 	 * @return Mono<Transaction>
 	 */
@@ -62,6 +69,8 @@ public class TransactionService {
 																	);
 		//5. transaction pool에 추가한다.	
 		TransactionPoolUtil.addToTransactionPool(transaction, deepCopyUTxOs);
+		//6. transactionPool 정보를 브로드캐스팅한다.
+		broadcastService.broadcast(MessageType.RESPONSE_TRANSACTIONPOOL);
 	    return Mono.just(transaction);
 	}
 
