@@ -53,3 +53,6 @@ coinbase:
   
 wallet:
   path: C:/Users/basquiat/git/basquiat-coin-with-java/wallet/
+
+peer:
+  path: C:/Users/basquiat/git/basquiat-coin-with-java/peer/
