@@ -1,4 +1,4 @@
-Simple Basquiat Coin Blockchain with Java Like Bitcoin
+Simple Basquiat Coin Blockchain with Java, Spring Boot /w WebFlux Like Bitcoin
 
 # 1. Block
   1.1 Simple Block Complete    
