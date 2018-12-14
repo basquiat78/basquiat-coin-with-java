@@ -126,7 +126,7 @@ peer:
 7. balance check    
   	   GET http://127.0.0.1:8080/balance/address/{address}     
   	   현재 노드의 account로 balance Check    
-  	   GET http://127.0.0.1:8080/balance/account/{address}    
+  	   GET http://127.0.0.1:8080/balance/account/{account}    
   	   
 8. peer    
    Eclipse를 사용했기 때문에 해당 프로젝트를 다른 eclipse에서 server port, tcp port, path를 변경해서 띄운다     
