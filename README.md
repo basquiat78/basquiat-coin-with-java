@@ -182,3 +182,10 @@ sendTransaction을 통해서 코인을 보낼 주소와 수량을 올려놓고 t
 # Maybe this project will be refactorying....  
 현재는 기능을 구현하기에 급급하느라 REST API의 주소 체계가 살짝 맞지 않으며 static으로 대부분 구현해 놨다.    
 차후에 utility성과 서비스, 핸들러로 패키지를 다시 나누는 작업이 필요하다	
+
+
+# Next
+Lisk같은 블록체인은 postgres를 활용하고 있다.    
+eos같은 경우에는 mongodb 활용.     
+
+심플한 블록체인이고 불안전한 교육용 블록체인이지만 블록 정보를 db를 활용해 저장하는 방식으로 교체 예정.    
