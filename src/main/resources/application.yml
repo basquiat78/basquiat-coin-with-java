@@ -2,7 +2,7 @@
 spring:
   profiles:
     active: local
-    
+
 ---
 #spring profiles : LOCAL
 spring:
@@ -61,11 +61,11 @@ algorithm:
     name: secp256k1
   provider: BC
   signature: SHA256withECDSA
-  
+
 coinbase:
   amount: 100
   path: C:/Users/basquiat/git/basquiat-coin-with-java/wallet/coinbase/
-  
+
 wallet:
   path: C:/Users/basquiat/git/basquiat-coin-with-java/wallet/
 

@@ -55,6 +55,7 @@ public class WalletUtil {
 	 * private키를 담은 정보를 파일로 저장한다.
 	 * 생성하고 CoinBaseStore로부터 coinbase가 세팅되어 있는지 확인하고 없다면
 	 * 해당 account를 coinbase로 세팅한다.
+	 * @param account
 	 */
 	public static void writeWalletPrivateKey(String account) {
 		if(FileIOUtil.hasWalletFile(account)) {
@@ -76,6 +77,7 @@ public class WalletUtil {
 	/**
 	 * 파일의 privateKey로부터 address를 생성한다.
 	 * publicKey에서 나온 최종 값을 base58로 인코딩하고 Sha256으로 감싸서 반환한다.
+	 * @param account
 	 * @return String
 	 */
 	public static String getWalletAddress(String account) {
@@ -116,8 +118,7 @@ public class WalletUtil {
 	}
 	
 	/**
-	 * account 정보로 privateKey 얻기
-	 * @param account
+	 * coinbase 정보로 privateKey 얻기
 	 * @return String
 	 */
 	public static String getCoinbasePrivateKey() {
@@ -127,7 +128,6 @@ public class WalletUtil {
 	/**
 	 * 주소에 대한 잔고는 아직 쓰이지 않은 uxtos의 리스트에서 해당 주소의 모든 잔고를 합한 값이 된다.
 	 * @param address
-	 * @param uTxOs
 	 * @return BigDecimal
 	 */
 	public static BigDecimal getBalanceByAddress(String address) {
@@ -141,7 +141,6 @@ public class WalletUtil {
 	 * 주소에 대한 잔고는 아직 쓰이지 않은 uxtos의 리스트에서 해당 주소의 모든 잔고를 합한 값이 된다.
 	 * account로 wallet file로부터 privateKey를 구하고 address를 추출해 잔고를 계산한다.
 	 * @param address
-	 * @param uTxOs
 	 * @return BigDecimal
 	 */
 	public static BigDecimal getBalanceByAccount(String account) {

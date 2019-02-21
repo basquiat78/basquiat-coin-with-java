@@ -28,6 +28,7 @@ public class WalletService {
 
 	/**
 	 * changeCoinbase
+	 * @param account
 	 * @return Mono<Address>
 	 */
 	public Mono<Address> changeCoinbase(String account) {
@@ -52,7 +53,7 @@ public class WalletService {
 		}
 		// 주소까지 생성되면 새로운 account를 coinbase store에 저장한다.
 		CoinbaseStore.setCoinbase(account);
-		return  Mono.just(Address.builder().account(account).address(address).build());
+		return Mono.just(Address.builder().account(account).address(address).build());
 	}
 
 	/**
@@ -67,7 +68,7 @@ public class WalletService {
 			throw new RuntimeException("Not Found Account!");
 		}
 		String address = WalletUtil.getWalletAddress(account);
-		return  Mono.just(Address.builder().account(account).address(address).amount(WalletUtil.getBalanceByAccount(account)).build());
+		return Mono.just(Address.builder().account(account).address(address).amount(WalletUtil.getBalanceByAccount(account)).build());
 	}
 
 	/**
@@ -80,7 +81,7 @@ public class WalletService {
 		// 이미 존재한다면 에러
 		WalletUtil.writeWalletPrivateKey(account);
 		String address = WalletUtil.getWalletAddress(account);
-		return  Mono.just(Address.builder().account(account).address(address).build());
+		return Mono.just(Address.builder().account(account).address(address).build());
 	}
 
 	/**

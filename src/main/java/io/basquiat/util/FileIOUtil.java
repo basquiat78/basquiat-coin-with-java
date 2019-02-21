@@ -2,6 +2,7 @@ package io.basquiat.util;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +12,12 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.basquiat.blockchain.block.domain.Block;
+import io.basquiat.blockchain.peer.domain.Peers;
 import io.basquiat.blockchain.wallet.domain.Wallet;
 
 /**
  * 
- * block file IO
+ * FileIOUtil
  * 
  * created by basquiat
  *
@@ -34,6 +36,8 @@ public class FileIOUtil {
 	static String WALLET_PATH;
 
 	static String COINBASE_PATH;
+	
+	static String PEER_PATH;
 
 	@Value("${block.file.path}")
 	private void setBlockFilePath(String blockFilePath) {
@@ -58,6 +62,11 @@ public class FileIOUtil {
 	@Value("${coinbase.path}")
 	private void setCoinbasePath(String coinbasePath) {
 		COINBASE_PATH = coinbasePath;
+    }
+	
+	@Value("${peer.path}")
+	private void setPeerPath(String peerPath) {
+		PEER_PATH = peerPath;
     }
 	
 	/**
@@ -103,6 +112,23 @@ public class FileIOUtil {
             e.printStackTrace();  
         }
 		return block;
+	}
+	
+	/**
+	 * block 폴더의 모든 파일을 지우고 새로 쓴다.
+	 * @param receivedBlockList
+	 */
+	public static void removeAndwriteJsonBlockFile(List<Block> blockList) {
+		// 폴더를 지운다.
+		File[] files = FileIOUtil.blockFileList();
+		for(File file : files) {
+			file.delete();
+		}
+		
+		// 블록 정보를 파일로 쓴다.
+		for(Block block: blockList) {
+			FileIOUtil.writeJsonBlockFile(block);
+		}
 	}
 	
 	/**
@@ -168,14 +194,8 @@ public class FileIOUtil {
 	 * @return boolean
 	 */
 	public static boolean hasWalletFile(String account) {
-		boolean hasFile = false;
-		try {
-			File file = new File(WALLET_PATH + account);
-			hasFile = file.exists();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-		return hasFile;
+		File file = new File(WALLET_PATH + account);
+		return file.exists();
 	}
 	
 	/**
@@ -241,4 +261,48 @@ public class FileIOUtil {
 		}
 	}
 	
+	/**
+	 * write peers file
+	 * peer 목록들을 json으로 저장한다.
+	 */
+	public static void writeJsonPeerFile(Peers peers) {
+		try {
+			File file = new File(PEER_PATH + Peers.class.getSimpleName());
+			if(!file.exists()) {
+				file.createNewFile();
+				FileWriter fileWriter = new FileWriter(file);  
+				fileWriter.write(CommonUtil.convertJsonStringFromObject(peers));  
+				fileWriter.flush();
+				fileWriter.close();
+			} else {
+				FileWriter fileWriter = new FileWriter(file, false);  
+				fileWriter.write(CommonUtil.convertJsonStringFromObject(peers));  
+				fileWriter.flush();
+				fileWriter.close();
+			}
+        } catch (Exception e) {  
+            e.printStackTrace();
+        }  
+	}
+
+	/**
+	 * read peers file
+	 * @return Peers
+	 */
+	public static Peers readJsonPeerFile() {
+		ObjectMapper mapper = new ObjectMapper();
+		Peers peers = null;
+		try {
+			File file = new File(PEER_PATH + Peers.class.getSimpleName());
+			if(file.exists()) {
+				peers = mapper.readValue(file, Peers.class);
+			} else {
+				peers = new Peers();
+			}
+        } catch (Exception e) {
+            e.printStackTrace();  
+        }
+		return peers;
+	}
+
 }

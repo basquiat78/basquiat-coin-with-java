@@ -1,14 +1,20 @@
 package io.basquiat.blockchain.block.validator;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.basquiat.blockchain.block.difficulty.BlockDifficulty;
 import io.basquiat.blockchain.block.domain.Block;
 import io.basquiat.blockchain.block.util.BlockUtil;
+import io.basquiat.blockchain.transaction.domain.UnspentTransactionOut;
+import io.basquiat.blockchain.transaction.util.TransactionUtil;
+import io.basquiat.util.Sha256Util;
 
 /**
  * Block Validator
@@ -17,6 +23,13 @@ import io.basquiat.blockchain.block.util.BlockUtil;
  */
 @Component
 public class BlockValidator {
+	
+	static String GENESIS_SOURCE;
+
+	@Value("${genesis.hash.value}")
+	private void setGenesisSource(String genesisHashValue) {
+		GENESIS_SOURCE = genesisHashValue;
+    }
 	
 	private static final Logger LOG = LoggerFactory.getLogger(BlockValidator.class);
 	
@@ -91,7 +104,7 @@ public class BlockValidator {
 	public static boolean validateGenesisBlock(Block receivedGenesisBlock) {
 		boolean isValid = true;
 		// 1. 받은 genesis block의 index와 현재 노드의 genesis block의 index 체크
-		Block genesisBlock = BlockUtil.genesisBlockFromFileRepository();
+		Block genesisBlock = BlockUtil.genesisBlockFromBlockStore();
 		if( genesisBlock.getIndex() != receivedGenesisBlock.getIndex() ) {
 			LOG.info("invalid Receidved Genesis Block Index");
 			return false;
@@ -111,13 +124,9 @@ public class BlockValidator {
 			LOG.info("invalid Receidved Genesis Block Data");
 			return false;
 		}
-		// 5. 최종적으로 받은 genesis block의 정보로 생성한 hash가 현재 노드의 genesis block의 hash와 같은지 체크
-		String regenerateGenesisBlockHash = BlockUtil.createHash(receivedGenesisBlock.getIndex(), 
-																 receivedGenesisBlock.getPreviousHash(), 
-																 receivedGenesisBlock.getTimestamp(), 
-																 receivedGenesisBlock.getTransactions().toString(),
-																 receivedGenesisBlock.getDifficulty(),
-																 receivedGenesisBlock.getNonce());
+		// 5. 현재 노드의 genesis_source로 만든 hash가 넘어온 genesis block의 hash와 같아야 한다.
+		String regenerateGenesisBlockHash = Sha256Util.SHA256(GENESIS_SOURCE);
+		
 		if( !regenerateGenesisBlockHash.equals(genesisBlock.getHash()) ) {
 			LOG.info("invalid Receidved Genesis Block Hash");
 			return false;
@@ -152,4 +161,40 @@ public class BlockValidator {
 		return isValid;
 	}
 
+	/**
+	 * 블록 리스트, 즉 블록체인이 유효한지 체크한다.
+	 * peer에서 넘겨받은 블록체인을 변경할때 유효성체크하기 위해 사용
+	 * 
+	 * 1. genesis block에 대한 유효성 체크
+	 * 2. uTxOs를 생성한다.
+	 * 3. peer로부터 받은 blocklist에서 블록과 이전 블록의 유효성을 일일이 체크한다.
+	 * 4. block으로부터 uTxO를 생성하고 전체 블록을 조회하며 uTxOs를 생성한다.
+	 * 5. 유효성 검사에서 패스하면 전체 uTxOs를 새로 반환한다.
+	 * 
+	 * @param blockList
+	 * @return List<UnspentTransactionOut>
+	 */
+	public static List<UnspentTransactionOut> validBlockchain(List<Block> blockList) {
+		// 1. genesis block유효성 체크
+		Block receivedGenesisBlock = blockList.get(0);
+		if(!BlockValidator.validateGenesisBlock(receivedGenesisBlock)) {
+			// 유효하지 않다면 null을 반환한다.
+			return null;
+		}
+		
+		List<UnspentTransactionOut> resultUTxOs = new ArrayList<>();
+		for(int i = 0; i < blockList.size(); i++) {
+			if( i != 0 && !BlockValidator.validateNewBlock(blockList.get(i), blockList.get(i-1))) {
+				// 유효한 정보가 아니라면 null 반환
+				return null;
+			}
+			// 블록으로부터 uTxOs를 생성한다.
+			resultUTxOs = TransactionUtil.processTransactions(blockList.get(i).getTransactions(), resultUTxOs, blockList.get(i).getIndex());
+			if(resultUTxOs == null) {
+				LOG.info("exist invalid transactions in blockchain");
+			}
+		}
+		return resultUTxOs;
+	}
+	
 }

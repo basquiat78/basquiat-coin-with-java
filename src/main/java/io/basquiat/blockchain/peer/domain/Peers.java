@@ -1,15 +1,14 @@
-package io.basquiat.blockchain.block.domain;
+package io.basquiat.blockchain.peer.domain;
 
 import java.util.List;
 
-import io.basquiat.blockchain.transaction.domain.Transaction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 /**
- * RequestMap
+ * peer 정보
  * created by basquiat
  *
  */
@@ -17,11 +16,11 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class RequestMap {
+public class Peers {
 
 	/**
-	 * transaction list
+	 * peerList
 	 */
-	private List<Transaction> transactions;
+	private List<Peer> peerList;
 	
 }

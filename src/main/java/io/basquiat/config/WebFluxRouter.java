@@ -10,12 +10,12 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import io.basquiat.blockchain.block.handler.BlockHandler;
+import io.basquiat.blockchain.peer.handler.PeerHandler;
 import io.basquiat.blockchain.pool.handler.TransactionPoolHandler;
 import io.basquiat.blockchain.transaction.handler.TransactionHandler;
 import io.basquiat.blockchain.wallet.handler.WalletHandler;
@@ -27,7 +27,7 @@ import io.basquiat.blockchain.wallet.handler.WalletHandler;
  */
 @EnableWebFlux
 @Configuration
-public class WebFluxRouter extends DelegatingWebFluxConfiguration {
+public class WebFluxRouter {
 
 	@Autowired
 	private BlockHandler blockHandler;
@@ -40,6 +40,9 @@ public class WebFluxRouter extends DelegatingWebFluxConfiguration {
 	
 	@Autowired
 	private TransactionPoolHandler transactionPoolHandler;
+	
+	@Autowired
+	private PeerHandler peerHandler;
 	
 	@Bean
     public RouterFunction<ServerResponse> BlockChainRouter() {
@@ -58,7 +61,9 @@ public class WebFluxRouter extends DelegatingWebFluxConfiguration {
         	   .andRoute(POST("/transactions/mineTransaction").and(accept(APPLICATION_JSON)), transactionHandler::mindTransaction)
         	   .andRoute(GET("/transactions/transactionPool").and(accept(APPLICATION_JSON)), transactionPoolHandler::getTransactionPool)
         	   .andRoute(GET("/utxos").and(accept(APPLICATION_JSON)), transactionHandler::getUTxOs)
-        	   .andRoute(GET("/utxos/coinbase").and(accept(APPLICATION_JSON)), transactionHandler::getCoinbaseUTxOs);
+        	   .andRoute(GET("/utxos/coinbase").and(accept(APPLICATION_JSON)), transactionHandler::getCoinbaseUTxOs)
+        	   .andRoute(GET("/peers").and(accept(APPLICATION_JSON)), peerHandler::getPeers)
+        	   .andRoute(POST("/peers").and(accept(APPLICATION_JSON)), peerHandler::addPeer);
     }
 
 }

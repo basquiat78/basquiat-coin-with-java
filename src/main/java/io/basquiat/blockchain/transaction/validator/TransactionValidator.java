@@ -27,7 +27,7 @@ import io.basquiat.crypto.ECDSAUtil;
 import io.basquiat.util.Base58;
 
 /**
- * Block Validator
+ * TransactionValidator
  * created by basquiat
  *
  */
@@ -51,13 +51,12 @@ public class TransactionValidator {
 	 * 3. transactionIn과 transactionOut의 amount는 같아야 한다. 틀리다면 조작된 uTxO
 	 * 
 	 * </pre>   
-	 * @param newBlock
-	 * @param previousBlock
+	 * @param transaction
+	 * @param totalUTxOs
 	 * @return boolean
 	 */
 	public static boolean validateTransaction(Transaction transaction, List<UnspentTransactionOut> totalUTxOs) {
 		boolean isValid = true;
-		
 		// 1. transaction hash 체크
 		if( !transaction.getTxHash().equals(TransactionUtil.createTransactionHash(transaction)) ) {
 			LOG.info("invalid Transaction Hash!");

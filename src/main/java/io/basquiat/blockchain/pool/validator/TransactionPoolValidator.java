@@ -33,12 +33,12 @@ public class TransactionPoolValidator {
 		// 하나라도 같은게 있다면 해당 transaction을 transactinopool에 등록할 수 없다. 
 		for(TransactionIn txInFromPool : txIns) {
 			TransactionIn specificTxIn = transaction.getTxIns()
-									  .stream()
-									  .filter(txIn -> txIn.getTxOutHash().equals(txInFromPool.getTxOutHash()) && 
-													  txIn.getTxOutIndex() == txInFromPool.getTxOutIndex()
-											  )
-									  .findAny()
-									  .orElse(null);
+												  	.stream()
+													.filter(txIn -> txIn.getTxOutHash().equals(txInFromPool.getTxOutHash()) && 
+																	txIn.getTxOutIndex() == txInFromPool.getTxOutIndex()
+															  )
+													.findAny()
+													.orElse(null);
 			if(specificTxIn != null) {
 				isValid = false;
 				LOG.info("transactionIn already exist in Transaction Pool");

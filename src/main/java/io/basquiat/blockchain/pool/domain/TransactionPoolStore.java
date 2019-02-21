@@ -41,6 +41,7 @@ public class TransactionPoolStore {
 	
 	/**
 	 * TRANSACTIONPOOL_STORE에서 Transaction를 가져온다.
+	 * @param index
 	 * @return Transaction
 	 */
 	public static Transaction getTransaction(Integer index) {
@@ -57,7 +58,7 @@ public class TransactionPoolStore {
 	
 	/**
 	 * concurrentHashMap의 값을 변경한다.
-	 * @param concurrentHashMap
+	 * @param transactionList
 	 */
 	public static void updateTransactionPoolStore(List<Transaction> transactionList) {
 		TRANSACTIONPOOL_STORE.clear();

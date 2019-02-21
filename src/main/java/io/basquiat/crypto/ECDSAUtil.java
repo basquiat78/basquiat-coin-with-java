@@ -33,7 +33,7 @@ import io.basquiat.util.CommonUtil;
 
 /**
  * ECDSA Util
- * @author basquiat
+ * created by basquiat
  *
  */
 @Component

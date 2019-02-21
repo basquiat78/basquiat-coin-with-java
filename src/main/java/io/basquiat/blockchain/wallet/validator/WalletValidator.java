@@ -10,7 +10,7 @@ import io.basquiat.blockchain.wallet.util.WalletUtil;
 import io.basquiat.util.FileIOUtil;
 
 /**
- * Block Validator
+ * WalletValidator
  * created by basquiat
  *
  */
