@@ -75,7 +75,7 @@ block:
   file:
     name:
       format: .json
-      prefix: DOUBLECHAIN_
+      prefix: BASQUIAT_
     path: {your block path}/block/
   generation:
     interval: 15
